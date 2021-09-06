@@ -16,7 +16,6 @@ class Interpreter():
         self.liveOutput = live_output
     
     def move_right(self):
-        # print("Movin' right")
         if len(self.cells) - 1 < self.selectedCell + 1:
             self.cells.append(0)
             self.selectedCell += 1
@@ -24,9 +23,7 @@ class Interpreter():
             self.selectedCell += 1
     
     def move_left(self):
-        # print("Movin' left")
         if self.selectedCell == 0:
-            #print(self.currentIndex)
             raise IndexError("Attempt to move left, despite being on index 0.")
         else:
             self.selectedCell -= 1
@@ -78,13 +75,11 @@ class Interpreter():
         port = [self.stack.pop(0) for i in range(2)]
         portBin = [bin(i)[2:] for i in port]
         portBinStr = str(portBin[0])+str(portBin[1])
-        #print(int(portBinStr, 2))
         return int(portBinStr,2)
 
     def connect(self):
         ipArr = self.getIPFromStack()
         port = self.getPortFromStack()
-        #print(port)
         if self.bfsocket != None:
             self.bfsocket.shutdown(SHUT_RDWR)
             self.bfsocket.close()
@@ -96,7 +91,7 @@ class Interpreter():
             self.bfsocket.shutdown(SHUT_RDWR)
             self.bfsocket.close()
             self.bfsocket = None
-    
+
     def listen(self):
         port = self.getPortFromStack()
         if self.bfsocket != None:
@@ -105,7 +100,6 @@ class Interpreter():
         self.bfsocket = socket(AF_INET, SOCK_STREAM)
         self.bfsocket.bind(("0.0.0.0",port))
         self.bfsocket.listen(1)
-        # tmpSock = None
         self.bfsocket = self.bfsocket.accept()[0]
         ipAddr, _ = self.bfsocket.getpeername()
         ipList = ipAddr.split(".")[::-1]
@@ -122,16 +116,19 @@ class Interpreter():
                 self.cells[self.selectedCell] = data
             except:
                 self.bfsocket.close()
-                #print("Recv exception.")
                 self.bfsocket = None
         else:
             startIndex = bf[:self.currentIndex][::-1].index("{")
             self.currentIndex -= startIndex + 2
-            #print(self.currentIndex)
             
 
     def getStack(self):
         return self.stack
+
+    def peek(self):
+        if len(self.stack) <= 0:
+            raise IndexError("Tried to peek element when stack was empty.")
+        self.cells[self.selectedCell] = self.stack[0]
 
     def enterNetLoop(self, bf):
         if self.inNetLoop:
@@ -140,8 +137,6 @@ class Interpreter():
         if self.bfsocket == None:
             endIndex = bf.index("}", self.currentIndex)
             self.currentIndex = endIndex
-            #print(bf[self.currentIndex])
-            # print(bf[self.currentIndex])
         else:
             self.inNetLoop = True
     
@@ -150,7 +145,6 @@ class Interpreter():
             startIndex = bf[:self.currentIndex][::-1].index("{")
             self.currentIndex -= startIndex+2
             self.inNetLoop = False
-            #print(bf[self.currentIndex])
         else:
             self.inNetLoop = False
 
@@ -158,13 +152,11 @@ class Interpreter():
         if self.cells[self.selectedCell] == 0:
             endIndex = bf.index("]")
             self.currentIndex = endIndex
-            # print(bf[self.currentIndex])
     
     def exitLoop(self, bf):
         if self.cells[self.selectedCell] != 0:
             startIndex = bf[:self.currentIndex][::-1].index("[")
             self.currentIndex -= startIndex+1
-            #print(bf[self.currentIndex])
     
     def bf_interpret(self, bf, console_input=True, manualInput=""):
         validSquares = 0
@@ -182,10 +174,7 @@ class Interpreter():
             raise SyntaxError("Mismatched square brackets.")
         if validCurly != 0:
             raise SyntaxError("Mismatched curly brackets.")
-        while self.currentIndex < len(bf):
-            # print("--- DIVIDER ---")
-            # print(self.selectedCell)
-            
+        while self.currentIndex < len(bf):            
             if self.skip > 0:
                 self.skip -= 1
                 self.currentIndex += 1
@@ -207,6 +196,7 @@ class Interpreter():
                 ",": self.byteInput,
                 "(": self.push,
                 ")": self.pop,
+                "/": self.peek,
                 "~": self.connect,
                 "`": self.disconnect,
                 "^": self.send,
@@ -227,7 +217,6 @@ class Interpreter():
                 if result == None:
                     result = argswitcher.get(j, None)
                     if result == None:
-                        # print("Invalid character:",j)
                         self.currentIndex += 1
                         continue
                     result(bf)
@@ -238,6 +227,4 @@ class Interpreter():
                     self.inNetLoop = False
                     startIndex = bf[:self.currentIndex][::-1].index("{")
                     self.currentIndex -= startIndex + 1
-                    #print(bf[self.currentIndex])
-            #print(f"Index: {self.currentIndex}, Char: {bf[self.currentIndex]}")
             self.currentIndex += 1

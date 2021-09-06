@@ -33,3 +33,14 @@ Example for connecting to 127.0.0.1:8080
 31 - Most significant byte of port number
 144 - Least significant byte of port number
 ```
+
+### TODO:
+
+v1.0:
+    -Full Rewrite: half this interpreter (the standard BF instruction set) was written by me years ago, and the other half (the custom features) was written painfully dealing with my horrid code, gonna purge and rewrite
+
+    -File IO: self-explanatory
+
+    -Descriptor Table: Will work similarly to the tape, but will hold sessions for Sockets and FileIO
+
+    -New Socket types: UDP, SSL (TCP wrapped in SSL, for use with HTTPS and the likes)
