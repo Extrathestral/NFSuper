@@ -45,4 +45,5 @@ v1.0:
 
     -Descriptor Table: Will work similarly to the tape, but will hold sessions for Sockets and FileIO
 
-    -New Socket types: UDP, SSL (TCP wrapped in SSL, for use with HTTPS and the likes)```
+    -New Socket types: UDP, SSL (TCP wrapped in SSL, for use with HTTPS and the likes)
+```
