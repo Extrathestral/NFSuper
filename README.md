@@ -2,6 +2,9 @@
 NFSuper is a derivative of the BrainFuck esolang, with a Stack, Networking, and File IO.
 
 ### Instructions
+
+Usage: `python NFSuper.py <file>`
+
 ```
 {}: Everything enclosed in these will be treated as a comment.
 +: inc current element
